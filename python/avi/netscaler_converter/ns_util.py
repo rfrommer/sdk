@@ -31,6 +31,14 @@ LOG = logging.getLogger(__name__)
 csv_writer = None
 csv_writer_dict_list = []
 
+skipped_setting = {
+            'virtual_service': '',
+            'ssl key and cert': {},
+            'ssl profile': {},
+            'pool group': {},
+            'health monitor': {},
+            'Httppolicy': {}
+        }
 
 def upload_file(file_path):
     """
@@ -78,7 +86,7 @@ def add_conv_status(line_no, cmd, object_type, full_command, conv_status,
     csv_writer_dict_list.append(row)
 
 
-def add_complete_conv_status(ns_config, output_dir):
+def add_complete_conv_status(ns_config, output_dir, avi_config):
     """
     Adds as status row in conversion status csv
     :param cmd: netscaler command
@@ -122,9 +130,9 @@ def add_complete_conv_status(ns_config, output_dir):
 
     for status in STATUS_LIST:
         status_list = [row for row in row_list if row['Status'] == status]
-        print '%s: %s' % (status, len(status_list))
+        #print '%s: %s' % (status, len(status_list))
 
-    vs_per_skipped_setting_for_references()
+    vs_per_skipped_setting_for_references(avi_config)
     # Write status report and pivot table in xlsx report
     write_status_report_and_pivot_table_in_xlsx(row_list, output_dir)
 
@@ -837,8 +845,10 @@ def get_name(url):
     :param url:
     :return: Name of object
     """
+
     parsed = urlparse.urlparse(url)
-    return urlparse.parse_qs(parsed.query)['name'][0]
+    name = urlparse.parse_qs(parsed.query)['name'][0]
+    return name
 
 
 def format_string_to_json(avi_string):
@@ -855,34 +865,117 @@ def format_string_to_json(avi_string):
     return json.loads(avi_string)
 
 
-def vs_per_skipped_setting_for_references():
+def csv_object_list(csv_writer_dict_list, command_list):
+    csv_object = [row for row in
+                       csv_writer_dict_list
+                       if row['Status'] == STATUS_PARTIAL
+                       and row['Netscaler Command'] in
+                       command_list]
+    return csv_object
 
+
+def get_csv_skipped_list(csv_object, name_of_object):
+    skipped_list = []
+    for each_partial in csv_object:
+            avi_object_json = \
+                format_string_to_json(each_partial['AVI Object'])
+            if avi_object_json.get('name') and \
+                            avi_object_json['name'] == name_of_object:
+                skipped_list.append(each_partial['Skipped settings'])
+    return skipped_list
+
+
+def get_pool_skipped_list(avi_config, pool_group_name, skipped_setting,
+                          csv_object, obj_name):
+    pool_ref = [pool_ref for pool_ref in avi_config['PoolGroup']
+                if pool_ref['name'] == pool_group_name]
+    for pool in pool_ref:
+        if 'members' in pool:
+            for each_pool_ref in pool['members']:
+                pool_name = get_name(each_pool_ref['pool_ref'])
+                skipped_list = get_csv_skipped_list(csv_object, pool_name)
+                skipped_setting[obj_name]['pool'] = {}
+                skipped_setting[obj_name]['pool']['name'] = pool_name
+                skipped_setting[obj_name]['pool']['skipped_list'] = skipped_list
+                for pool_partial in csv_object:
+                    if 'health_monitor_refs' in pool_partial:
+                        monitor_name = get_name(
+                            each_pool_ref['health_monitor_refs'])
+                        csv_object = csv_object_list(csv_writer_dict_list,
+                                                     ['add lb monitor'])
+                        skipped_list = get_csv_skipped_list(csv_object,
+                                                            monitor_name)
+                        skipped_setting[obj_name]['health monitor'] = {}
+                        skipped_setting[obj_name]['health monitor']['name'] \
+                            = monitor_name
+                        skipped_setting
+                        [obj_name]['health monitor']['skipped_list'] = \
+                            skipped_list
+
+
+def vs_per_skipped_setting_for_references(avi_config):
     vs_csv_objects = [row for row in csv_writer_dict_list
                      if row['Status'] == STATUS_PARTIAL
                      and row['Netscaler Command']
                      in ['add cs vserver', 'add lb vserver']]
-    print vs_csv_objects
     for vs_csv_object in vs_csv_objects:
-
         virtual_service = format_string_to_json(vs_csv_object['AVI Object'])
-        skipped_setting = \
-            {'virtual_service': virtual_service['Skipped settings']}
+        # For virtual service skipped settings
+        # skipped_setting = {
+        #     'virtual_service': vs_csv_object['Skipped settings'],
+        #     'ssl key and cert': {},
+        #     'ssl profile': {},
+        #     'pool group': {},
+        #     'health monitor': {},
+        #     'Httppolicy': {}
+        # }
+        skipped_setting['virtual_service'] = vs_csv_object['Skipped settings']
+        if 'ssl_key_and_certificate_refs' in virtual_service:
+            ssl_key_cert = \
+                get_name(virtual_service['ssl_key_and_certificate_refs'][0])
+            csv_object = csv_object_list(csv_writer_dict_list, ['bind ssl vserver'])
+            skipped_list = get_csv_skipped_list(csv_object, ssl_key_cert)
+            skipped_setting['ssl key and cert']['name'] = ssl_key_cert
+            skipped_setting['ssl key and cert']['skipped_list'] = skipped_list
         if 'ssl_profile_name' in virtual_service:
             ssl_profile_name = get_name(virtual_service['ssl_profile_name'])
-            ssl_profile_csv_object = [row for row in csv_writer_dict_list
-                                      if row['Status'] == STATUS_PARTIAL
-                                      and (format_string_to_json
-                                           (row['AVI Object']))['name'] ==
-                                      ssl_profile_name]
-            skipped_setting.update(
-                {'ssl_profile': ssl_profile_csv_object['Skipped settings']})
+            csv_object = csv_object_list(csv_writer_dict_list, ['add cs vserver','bind cs vserver'])
+            skipped_list = get_csv_skipped_list(csv_object, ssl_profile_name)
+            skipped_setting['ssl profile']['name'] = ssl_profile_name
+            skipped_setting['ssl profile']['skipped_list'] = skipped_list
+        if 'pool_group_ref' in virtual_service:
+            pool_group_name = get_name(virtual_service['pool_group_ref'])
+            csv_object = csv_object_list(csv_writer_dict_list, ['bind lb vserver'])
+            get_pool_skipped_list \
+                (avi_config, pool_group_name,
+                 skipped_setting, csv_object,
+                 'pool group')
 
+        if 'http_policies' in virtual_service:
+            for http_ref in virtual_service['http_policies']:
+                http_name = get_name(http_ref['http_policy_set_ref'])
+                csv_object = \
+                    csv_object_list(csv_writer_dict_list,
+                                    ['add cs policy',
+                                     'add responder policy',
+                                     'add rewrite policy'])
+                skipped_list = get_csv_skipped_list(csv_object, http_name)
+                skipped_setting['Httppolicy']['name'] = http_name
+                skipped_setting['Httppolicy']['skipped_list'] = skipped_list
+                # Get the http policy name
+                for each_http_policy in avi_config['HTTPPolicySet']:
+                    for http_req in \
+                            each_http_policy['http_request_policy']['rules']:
+                        if http_req.get('switching_action'):
+                            pool_group_name = \
+                                get_name(http_req['switching_action']
+                                         ['pool_group_ref'])
+                            get_pool_skipped_list\
+                                (avi_config, pool_group_name,
+                                 skipped_setting, csv_object,
+                                 'Httppolicy')
 
-
-
-
-
-
+    print "sklist###", skipped_setting
 
 
 # avi_config = {'VirtualService': [
