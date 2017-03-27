@@ -126,13 +126,13 @@ def add_complete_conv_status(ns_config, output_dir, avi_config):
             if str(dict_row['AVI Object']).startswith('Skipped'):
                 continue
             if dict_row.get('AVI Object', None):
-                row[0]['AVI Object'] += ' %s' % dict_row['AVI Object']
+                row[0]['AVI Object'] += '__/__%s' % dict_row['AVI Object']
 
     for status in STATUS_LIST:
         status_list = [row for row in row_list if row['Status'] == status]
         print '%s: %s' % (status, len(status_list))
 
-    #vs_per_skipped_setting_for_references(avi_config)
+    vs_per_skipped_setting_for_references(avi_config)
     # Write status report and pivot table in xlsx report
     write_status_report_and_pivot_table_in_xlsx(row_list, output_dir)
 
@@ -859,6 +859,7 @@ def format_string_to_json(avi_string):
     :return: Return converted string
     """
 
+    avi_string = avi_string.split('__/__')[0]
     repls = ('True', 'true'), ('False', 'false'), ("\"", ""), ("'", "\""), \
             ("None", "null")
     avi_string = reduce(lambda a, kv: a.replace(*kv), repls, avi_string)
@@ -889,11 +890,11 @@ def get_csv_skipped_list(csv_object, name_of_object):
     """
     skipped_list = []
     for each_partial in csv_object:
-            avi_object_json = \
-                format_string_to_json(each_partial['AVI Object'])
-            if avi_object_json.get('name') and \
-                            avi_object_json['name'] == name_of_object:
-                skipped_list.append(each_partial['Skipped settings'])
+        avi_object_json = \
+            format_string_to_json(each_partial['AVI Object'])
+        if avi_object_json.get('name') and \
+                        avi_object_json['name'] == name_of_object:
+            skipped_list.append(each_partial['Skipped settings'])
     return skipped_list
 
 
@@ -1044,56 +1045,8 @@ def vs_per_skipped_setting_for_references(avi_config):
                                  skipped_setting, csv_object,
                                  'Httppolicy', csv_writer_dict_list)
 
-        vs_csv_object.update({'Vs reference skipped settings':
-                                  str(skipped_setting)})
-        print "vs####1", vs_csv_object
-
-# avi_config = {'VirtualService': [
-# {
-#             "name": "stmdev_443_csv",
-#             "cloud_ref": "/api/cloud/?tenant=admin&name=Default-Cloud",
-#             "type": "VS_TYPE_NORMAL",
-#             "tenant_ref": "/api/tenant/?name=admin",
-#             "http_policies": [
-#                 {
-#                     "index": 11,
-#                     "http_policy_set_ref": "/api/httppolicyset/?tenant=admin&name=stmdev_polstmdev_compsso_pol"
-#                 }
-#             ],
-#             "services": [
-#                 {
-#                     "enable_ssl": true,
-#                     "port": "443"
-#                 }
-#             ],
-#             "enabled": false,
-#             "ip_address": {
-#                 "type": "V4",
-#                 "addr": "113.132.232.63"
-#             },
-#             "ssl_key_and_certificate_refs": [
-#                 "/api/sslkeyandcertificate/?tenant=admin&name=stmdev-dummy"
-#             ],
-#             "ssl_profile_name": "/api/sslprofile/?tenant=admin&name=stmdev_443_csv"
-#         }
-#     ],
-#     'hhh': [
-# {
-#             "accepted_versions": [
-#                 {
-#                     "type": "SSL_VERSION_TLS1"
-#                 },
-#                 {
-#                     "type": "SSL_VERSION_TLS1_1"
-#                 }
-#             ],
-#             "accepted_ciphers": "DHE-DSS-AES256-SHA:AES256-SHA:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA:AES128-SHA:DHE-RSA-AES256-SHA",
-#             "tenant_ref": "/api/tenant/?name=admin",
-#             "name": "stmdev_443_csv"
-#         }
-#     ]
-# }
-# vs_per_skipped_setting_for_references(avi_config)
+        vs_csv_object.update(
+            {'Vs reference skipped settings': str(skipped_setting)})
 
 
 def write_status_report_and_pivot_table_in_xlsx(row_list, output_dir):
