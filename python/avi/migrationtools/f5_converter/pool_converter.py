@@ -32,7 +32,9 @@ class PoolConfigConv(object):
             f5_pool = pool_config[pool_name]
             if not f5_pool:
                 LOG.debug("Empty pool skipped for conversion :%s" % pool_name)
-                conv_utils.add_status_row('pool', 'None', pool_name,
+                # Added status of pool in xlsx report
+                # Added sub type as single space(' ') for pivot table
+                conv_utils.add_status_row('pool', ' ', pool_name,
                                           conv_const.STATUS_SKIPPED)
                 continue
             if 'gateway-failsafe-device' in f5_pool:
@@ -201,8 +203,9 @@ class PoolConfigConv(object):
         if skipped:
             status = conv_const.STATUS_PARTIAL
         conv_status['status'] = status
-
-        conv_utils.add_conv_status('pool', 'None', name, conv_status,
+        # Added status of pool in xlsx report
+        # Added sub type as single space(' ') for pivot table
+        conv_utils.add_conv_status('pool', ' ', name, conv_status,
                                    converted_objs)
 
     def convert_for_pg(self, pg_dict, pool_obj, name, tenant, avi_config,
