@@ -131,18 +131,27 @@ class LbvsConverter(object):
                                            full_cmd, STATUS_SKIPPED,
                                            skipped_status)
                     continue
+
+                # VIP object for virtual service
+                vip = {
+                    'ip_address': {
+                        'addr': ip_addr,
+                        'type': 'V4'
+                    },
+                    'vip_id': 0
+                }
+
                 vs_obj = {
                     'name': updated_vs_name,
                     'type': 'VS_TYPE_NORMAL',
                     'tenant_ref': self.tenant_ref,
                     'cloud_ref': self.cloud_ref,
-                    'ip_address': {
-                        'addr': ip_addr,
-                        'type': 'V4'
-                    },
+                    'vip': [],
                     'enabled': enabled,
                     'services': [],
                 }
+                # Append vip object to virtual service object as multi vip
+                vs_obj['vip'].append(vip)
                 bind_conf_list = bind_lb_vs_config.get(key, None)
                 # Skipped this lb vs if it doen not have any bind lb vserver
                 if (not bind_conf_list) and (not redirect_url):

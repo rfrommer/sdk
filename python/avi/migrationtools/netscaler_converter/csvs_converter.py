@@ -117,19 +117,25 @@ class CsvsConverter(object):
                                        skipped_status)
                 continue
 
+            # VIP object for virtual service
+            vip = {
+                'ip_address': {
+                    'addr': ip_addr,
+                    'type': 'V4'
+                },
+                'vip_id': 0
+            }
             vs_obj = {
                 'name': updated_vs_name,
                 'tenant_ref': self.tenant_ref,
                 'cloud_ref': self.cloud_ref,
                 'type': 'VS_TYPE_NORMAL',
-                'ip_address': {
-                    'addr': ip_addr,
-                    'type': 'V4'
-                },
+                'vip': [],
                 'enabled': enabled,
                 'services': []
             }
-
+            # Append vip object to virtual service object as multi vip
+            vs_obj['vip'].append(vip)
             service = {'port': port, 'enable_ssl': enable_ssl}
             if port in ("0", "*"):
                 service['port'] = "1"
