@@ -62,8 +62,9 @@ def convert(ns_config_dict, tenant_name, cloud_name, version, output_dir,
                     "min_version": 15.2,
                     "ProductName": "Avi Cloud Controller"
                 },
-                "upgrade_mode": False,
-                "use_tenant": tenant_name
+                "use_tenant": tenant_name,
+                "upgrade_mode": False
+
             }
         }
 
