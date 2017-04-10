@@ -32,13 +32,13 @@ class PoolConfigConv(object):
             f5_pool = pool_config[pool_name]
             if not f5_pool:
                 LOG.debug("Empty pool skipped for conversion :%s" % pool_name)
-                conv_utils.add_status_row('pool', None, pool_name,
+                conv_utils.add_status_row('pool', 'None', pool_name,
                                           conv_const.STATUS_SKIPPED)
                 continue
             if 'gateway-failsafe-device' in f5_pool:
                 LOG.debug("Not supported gateway-failsafe-device, pool skipped "
                           "for conversion :%s" % pool_name)
-                conv_utils.add_status_row('pool', None, pool_name,
+                conv_utils.add_status_row('pool', 'None', pool_name,
                                           conv_const.STATUS_SKIPPED)
                 continue
             try:
@@ -52,7 +52,7 @@ class PoolConfigConv(object):
             except:
                 LOG.error("Failed to convert pool: %s" % pool_name,
                           exc_info=True)
-                conv_utils.add_status_row('pool', None, pool_name,
+                conv_utils.add_status_row('pool', 'None', pool_name,
                                           conv_const.STATUS_ERROR)
         labels_dict = avi_config.pop('PriorityLabels', None)
         if labels_dict:
@@ -202,7 +202,7 @@ class PoolConfigConv(object):
             status = conv_const.STATUS_PARTIAL
         conv_status['status'] = status
 
-        conv_utils.add_conv_status('pool', None, name, conv_status,
+        conv_utils.add_conv_status('pool', 'None', name, conv_status,
                                    converted_objs)
 
     def convert_for_pg(self, pg_dict, pool_obj, name, tenant, avi_config,

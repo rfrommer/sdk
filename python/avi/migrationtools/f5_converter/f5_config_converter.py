@@ -104,7 +104,7 @@ def convert(f5_config, output_dir, vs_state, input_dir, version,
     for f5_type in f5_config.keys():
         f5_obj = f5_config[f5_type]
         for key in f5_obj.keys():
-            sub_type = None
+            sub_type = 'None'
             if ' ' in key:
                 sub_type, key = key.rsplit(' ', 1)
             if f5_type in datascript_objs:
