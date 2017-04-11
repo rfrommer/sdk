@@ -18,11 +18,22 @@ path_key_map = {'poolgroup': 'PoolGroup', 'healthmonitor': 'HealthMonitor',
 
 
 def get_name_and_entity(url):
+    """
+    Parses reference string to extract object type and
+    :param url: reference url to be parsed
+    :return: entity and object name
+    """
     parsed = urlparse.urlparse(url)
     return parsed.path.split('/')[2], urlparse.parse_qs(parsed.query)['name'][0]
 
 
 def filter_for_vs(avi_config, vs_names):
+    """
+    Filters vs and its references from full configuration
+    :param avi_config: full configuration
+    :param vs_names: comma separated vs names to filter
+    :return: Filtered config dict
+    """
     new_config = dict()
     new_config['META'] = avi_config['META']
     new_config['VirtualService'] = []
@@ -42,12 +53,20 @@ def filter_for_vs(avi_config, vs_names):
 
 
 def search_obj(entity, name, new_config, avi_config, depth):
+    """
+    Method to search referenced object
+    :param entity: object type
+    :param name: object name
+    :param new_config: filtered config
+    :param avi_config: full config
+    :param depth: Recursion depth to determine level in the vs reference tree
+    """
     avi_conf_key = path_key_map[entity]
     found_obj_list = avi_config[avi_conf_key]
     found_obj = [obj for obj in found_obj_list if obj['name'] == name]
     if found_obj:
         found_obj = found_obj[0]
-        print (' | '*(depth))+' |- %s(%s)' % (name, path_key_map[entity])
+        print (' | '*depth), '|- %s(%s)' % (name, path_key_map[entity])
     else:
         print 'ERROR: Reference not found for %s with name %s' % (entity, name)
         exit()
@@ -61,23 +80,30 @@ def search_obj(entity, name, new_config, avi_config, depth):
     find_and_add_objects(found_obj, avi_config, new_config, depth)
 
 
-def find_and_add_objects(object, avi_config, new_config, depth):
-    for key in object:
+def find_and_add_objects(obj_dict, avi_config, new_config, depth):
+    """
+    Method to iterate in one object find references and add those to output
+    :param obj_dict: Object to be iterated over
+    :param avi_config: Full config
+    :param new_config: Filtered config
+    :param depth: Recursion depth to determine level in the vs reference tree
+    """
+    for key in obj_dict:
         if (key.endswith('ref') and key not in ['cloud_ref', 'tenant_ref']) \
                 or key == 'ssl_profile_name':
-            if not object[key]:
+            if not obj_dict[key]:
                 continue
-            entity, name = get_name_and_entity(object[key])
+            entity, name = get_name_and_entity(obj_dict[key])
             search_obj(entity, name, new_config, avi_config, depth)
         elif key.endswith('refs'):
-            for ref in object[key]:
+            for ref in obj_dict[key]:
                 entity, name = get_name_and_entity(ref)
                 search_obj(entity, name, new_config, avi_config, depth)
-        elif isinstance(object[key], dict):
-            find_and_add_objects(object[key], avi_config, new_config, depth)
-        elif object[key] and isinstance(object[key], list) \
-                and isinstance(object[key][0], dict):
-            for member in object[key]:
+        elif isinstance(obj_dict[key], dict):
+            find_and_add_objects(obj_dict[key], avi_config, new_config, depth)
+        elif obj_dict[key] and isinstance(obj_dict[key], list) \
+                and isinstance(obj_dict[key][0], dict):
+            for member in obj_dict[key]:
                 find_and_add_objects(member, avi_config, new_config, depth)
     return
 
@@ -90,15 +116,18 @@ if __name__ == '__main__':
 
            Example to filter single multiple vs:
                vs_filter.py -f  Output.json -n cool_vs,awesome_vs
+
+           Example to print tree of referenced objects without writing the file:
+               vs_filter.py -f  Output.json -n cool_vs,awesome_vs -p
            '''
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawTextHelpFormatter,
-        description=(HELP_STR))
+        description=HELP_STR)
     parser.add_argument('-f', '--avi_config_file', required=True,
                         help='absolute path for avi config file')
     parser.add_argument('-n', '--vs_names', required=True,
-                        help='comma seperated names of virtualservices')
+                        help='comma separated names of virtualservices')
     parser.add_argument('-o', '--output_file_path', default='output',
                         help='folder location for output file')
     parser.add_argument('-p', '--print_only', action='store_true',
@@ -117,5 +146,6 @@ if __name__ == '__main__':
         text_file = open(output_dir + os.path.sep + "FilterOutput.json", "w")
         json.dump(new_avi_config, text_file, indent=4)
         text_file.close()
-        print 'written avi config file ' + output_dir + \
-              os.path.sep + "FilterOutput.json"
+
+        print '\nWritten filtered avi config file to:', \
+            '%s%sFilterOutput.json' % (output_dir, os.path.sep)
