@@ -27,6 +27,15 @@ class LbvsConverter(object):
 
     def __init__(self, tenant_name, cloud_name, tenant_ref, cloud_ref,
                  profile_merge_check):
+        """
+        Construct a new 'LbvsConverter' object.
+        :param tenant_name: Name of tenant
+        :param cloud_name: Name of cloud
+        :param tenant_ref: Tenant reference
+        :param cloud_ref: Cloud Reference
+        :param profile_merge_check: Bool value for profile merge
+        """
+
         self.lbvs_skip_attrs = \
             ns_constants.netscalar_command_status['lbvs_skip_attrs']
         self.lbvs_na_attrs = \

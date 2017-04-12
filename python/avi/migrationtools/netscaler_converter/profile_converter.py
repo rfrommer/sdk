@@ -28,6 +28,17 @@ class ProfileConverter(object):
 
     def __init__(self, tenant_name, cloud_name, tenant_ref, cloud_ref,
                  ssl_ciphers, profile_merge_check, keypassphrase=None):
+        """
+        Construct a new 'ProfileConverter' object.
+        :param tenant_name: Name of tenant
+        :param cloud_name: Name of cloud
+        :param tenant_ref: Tenant reference
+        :param cloud_ref: Cloud Reference
+        :param ssl_ciphers: Object of list of supported and
+        non supported ssl ciphers
+        :param profile_merge_check: Bool value for profile merge
+        :param keypassphrase: path of passphrase yaml file
+        """
         
         self.profile_http_skip = \
             ns_constants.netscalar_command_status['profile_http_skip']

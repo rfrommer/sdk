@@ -21,6 +21,15 @@ class ServiceConverter(object):
 
     def __init__(self, tenant_name, cloud_name, tenant_ref, cloud_ref,
                  profile_merge_check):
+        """
+        Construct a new 'ServiceConverter' object.
+        :param tenant_name: Name of tenant
+        :param cloud_name: Name of cloud
+        :param tenant_ref: Tenant reference
+        :param cloud_ref: Cloud Reference
+        :param profile_merge_check: Bool value for profile merge
+        """
+
         self.nsservice_bind_lb_skipped = \
             ns_constants.netscalar_command_status['nsservice_bind_lb_skipped']
         self.nsservice_service_skip = \
