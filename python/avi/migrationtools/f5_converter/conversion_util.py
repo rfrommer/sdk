@@ -151,7 +151,7 @@ def add_conv_status(f5_type, f5_sub_type, f5_id, conv_status, avi_object=None):
     :param avi_object: Converted objectconverted avi object
     """
     global csv_writer_dict_list
-    # Added space if f5_sub_type None for pivot table 
+    # Added space if f5_sub_type None for pivot table
     row = {
         'F5 type': f5_type,
         'F5 SubType': f5_sub_type if f5_sub_type else ' ',

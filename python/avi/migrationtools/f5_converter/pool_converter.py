@@ -201,6 +201,7 @@ class PoolConfigConv(object):
         if skipped:
             status = conv_const.STATUS_PARTIAL
         conv_status['status'] = status
+
         conv_utils.add_conv_status('pool', None, name, conv_status,
                                    converted_objs)
 
