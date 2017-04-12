@@ -394,4 +394,3 @@ class CsvsConverter(object):
         # Update the index value of all policy rules as per their priority
         ns_util.set_rules_index_for_http_policy_set(avi_config)
         ns_util.clean_virtual_service_from_avi_config(avi_config)
-        del merge_profile_mapping
