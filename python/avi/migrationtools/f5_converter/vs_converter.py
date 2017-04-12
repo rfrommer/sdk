@@ -233,7 +233,10 @@ class VSConfigConv(object):
                     }
                     http_policies = {
                         'index': 11,
-                        'http_policy_set_ref': policy_name
+                        'http_policy_set_ref':
+                            conv_utils.get_object_ref(policy_name,
+                                                      'httppolicyset',
+                                                      tenant=tenant)
                     }
                     vs_obj['http_policies'] = []
                     vs_obj['http_policies'].append(http_policies)
