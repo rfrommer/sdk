@@ -44,7 +44,7 @@ class VSConfigConv(object):
                 if vs_type:
                     LOG.warn("VS type: %s not supported by Avi skipped VS: %s" %
                              (vs_type, vs_name))
-                    conv_utils.add_status_row('virtual', 'None', vs_name,
+                    conv_utils.add_status_row('virtual', None, vs_name,
                                               final.STATUS_SKIPPED)
                     continue
                 vs_obj = self.convert_vs(vs_name, f5_vs, vs_state, avi_config,
@@ -269,7 +269,7 @@ class VSConfigConv(object):
                 vs_obj["snat_ip"] = snat_list
             conv_status = {'status': final.STATUS_SUCCESSFUL}
             message = 'Mapped indirectly to VS -> SNAT IP Address'
-            conv_utils.add_conv_status('snatpool', 'None', snat_pool_name,
+            conv_utils.add_conv_status('snatpool', None, snat_pool_name,
                                        conv_status, message)
         if ntwk_prof:
             vs_obj['network_profile_ref'] = ntwk_prof[0]
@@ -315,7 +315,7 @@ class VSConfigConv(object):
         if skipped:
             status = final.STATUS_PARTIAL
         conv_status['status'] = status
-        conv_utils.add_conv_status('virtual', 'None', vs_name,
+        conv_utils.add_conv_status('virtual', None, vs_name,
                                    conv_status, vs_obj)
 
         return vs_obj
