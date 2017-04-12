@@ -371,8 +371,6 @@ class VSConfigConvV11(VSConfigConv):
                                                         pool_ref)
             elif port_translate == 'enabled':
                 return
-            else:
-                skipped.append('translate-port')
 
 
 class VSConfigConvV10(VSConfigConv):
@@ -397,5 +395,3 @@ class VSConfigConvV10(VSConfigConv):
                                                         pool_ref)
             elif port_translate == 'enabled':
                 return
-            else:
-                skipped.append('translate service')
