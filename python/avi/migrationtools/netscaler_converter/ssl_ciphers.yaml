@@ -2,7 +2,6 @@
 
 #List of netscaler cipher and respective open ssl
 #cipher which are supported by AVI
-
 netscaler_ssl_cipher_to_open_ssl_cipher_supported_by_avi:
   TLS1-AES-256-CBC-SHA: AES256-SHA
   TLS1-AES-128-CBC-SHA: AES128-SHA
