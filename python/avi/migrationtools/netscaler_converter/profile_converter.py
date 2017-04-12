@@ -15,6 +15,8 @@ LOG = logging.getLogger(__name__)
 
 tmp_ssl_key_and_cert_list = []
 tmp_pki_profile_list = []
+# Define Dict of merge_profile_mapping to update the merged profile name of
+# ssl_profile, application_profile, network_profile
 merge_profile_mapping = {
     'ssl_profile': {},
     'app_profile': {},
@@ -142,6 +144,10 @@ class ProfileConverter(object):
                                         ns_http_profile_complete_command,
                                         conv_status, app_profile)
                 if self.profile_merge_check:
+                    # Check application profile is duplicate of other
+                    # application profile then skipped this application
+                    # profile and increment of count of
+                    # application_merge_count
                     dup_of = \
                         ns_util.update_skip_duplicates(
                             app_profile, avi_config['ApplicationProfile'],
@@ -174,6 +180,10 @@ class ProfileConverter(object):
                                         ns_tcp_profile_complete_command,
                                         conv_status, net_profile)
                 if self.profile_merge_check:
+                    # Check network profile is duplicate of other
+                    # network profile then skipped this application
+                    # profile and increment of count of
+                    # network_merge_count
                     dup_of = \
                         ns_util.update_skip_duplicates(
                             net_profile, avi_config['NetworkProfile'],
@@ -291,6 +301,9 @@ class ProfileConverter(object):
                 avi_config["PKIProfile"].append(obj.get('pki'))
 
             if self.profile_merge_check:
+                # Check ssl profile is duplicate of other ssl profile then
+                # skipped this application profile and increment of count
+                # of ssl_merge_count
                 dup_of = \
                     ns_util.update_skip_duplicates(
                         ssl_profile, avi_config['SSLProfile'],

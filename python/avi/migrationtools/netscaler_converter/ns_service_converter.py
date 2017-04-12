@@ -334,6 +334,7 @@ class ServiceConverter(object):
                             ssl_key_cert_ref
                 ssl_profile_name = re.sub('[:]', '-', key)
                 if self.profile_merge_check:
+                    # Get the merge ssl profile name
                     ssl_profile_name = merge_profile_mapping['ssl_profile'].get(
                         ssl_profile_name, None)
 

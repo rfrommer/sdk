@@ -1133,6 +1133,7 @@ def update_skip_duplicates(obj, obj_list, obj_type, merge_profile_mapping, name)
     dup_of = check_for_duplicates(obj, obj_list)
     merge_profile_mapping[obj_type].update({name: name})
     if dup_of:
+        # Update value of ssl profile with merged profile
         merge_profile_mapping[obj_type].update({name: dup_of})
         return True
     return False

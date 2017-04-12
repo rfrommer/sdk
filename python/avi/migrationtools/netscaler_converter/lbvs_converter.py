@@ -187,6 +187,7 @@ class LbvsConverter(object):
                     avi_config['HTTPPolicySet'].append(policy)
 
                 if app_profile:
+                    # Get the merge application profile name
                     if self.profile_merge_check:
                         app_profile = merge_profile_mapping['app_profile'].get(
                             app_profile, None)
@@ -333,6 +334,7 @@ class LbvsConverter(object):
                              persistenceType)
                 ntwk_prof = lb_vs.get('tcpProfileName', None)
                 if ntwk_prof:
+                    # Get the merge network profile name
                     if self.profile_merge_check:
                         ntwk_prof = merge_profile_mapping['network_profile'].get(
                             ntwk_prof, None)
@@ -439,6 +441,7 @@ class LbvsConverter(object):
                     ssl_vs_mapping = ns_config.get('set ssl vserver', {})
                     mapping = ssl_vs_mapping.get(key, None)
                     ssl_profile_name = re.sub('[:]', '-', key)
+                    # Get the merge ssl profile name
                     if self.profile_merge_check:
                         ssl_profile_name = merge_profile_mapping['ssl_profile'].get(
                             ssl_profile_name, None)

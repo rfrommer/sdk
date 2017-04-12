@@ -142,6 +142,7 @@ class CsvsConverter(object):
 
             http_prof = cs_vs.get('httpProfileName', None)
             if http_prof:
+                # Get the merge application profile name
                 if self.profile_merge_check:
                     http_prof = merge_profile_mapping['app_profile'].get(
                         http_prof, None)
@@ -160,6 +161,7 @@ class CsvsConverter(object):
                     LOG.info('Conversion successful : %s' % clt_cmd)
             ntwk_prof = cs_vs.get('tcpProfileName', None)
             if ntwk_prof:
+                # Get the merge network profile name
                 if self.profile_merge_check:
                     ntwk_prof = merge_profile_mapping['network_profile'].get(
                         ntwk_prof, None)
@@ -258,6 +260,7 @@ class CsvsConverter(object):
                 ssl_vs_mapping = ns_config.get('set ssl vserver', {})
                 mapping = ssl_vs_mapping.get(key, None)
                 ssl_profile_name = re.sub('[:]', '-', key)
+                # Get the merge ssl profile name
                 if self.profile_merge_check:
                     ssl_profile_name = merge_profile_mapping['ssl_profile'].get(
                         ssl_profile_name, None)
