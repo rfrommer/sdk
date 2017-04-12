@@ -70,8 +70,13 @@ class ProfileConverter(object):
         self.tenant_ref = tenant_ref
         self.cloud_ref = cloud_ref
         # ssl cipher yaml
-        self.netscaler_ssl_cipher_to_open_ssl_cipher = \
-            ssl_ciphers.get('netscaler_ssl_cipher_to_open_ssl_cipher', {})
+        self.netscaler_ssl_cipher_to_open_ssl_cipher_supported_by_avi = \
+            ssl_ciphers.get(
+                'netscaler_ssl_cipher_to_open_ssl_cipher_supported_by_avi', {})
+        self.netscaler_ssl_cipher_to_open_ssl_cipher_not_supported_by_avi = \
+            ssl_ciphers.get(
+                'netscaler_ssl_cipher_to_open_ssl_cipher_not_supported_by_avi',
+                {})
         self.open_ssl_cipher_to_avi_ssl_cipher = ssl_ciphers.get(
             'open_ssl_cipher_to_avi_ssl_cipher', {})
         # list of keys with passphrase provided in YAML.
@@ -615,10 +620,28 @@ class ProfileConverter(object):
             full_bind_ssl_cipher_command = ns_util.\
                 get_netscalar_full_command(bind_ssl_cipher_command, bind_cipher)
             if bind_cipher.get('cipherName', None):
-                open_ssl_cipher = self.netscaler_ssl_cipher_to_open_ssl_cipher.get(bind_cipher['cipherName'], None)
-                if open_ssl_cipher:
-                    avi_cipher = {'accepted_ciphers': open_ssl_cipher}
-                    ciphers.append(open_ssl_cipher)
+                not_supported_open_ssl_cipher = \
+                    self.netscaler_ssl_cipher_to_open_ssl_cipher_not_supported_by_avi.\
+                        get(bind_cipher['cipherName'], None)
+                if not_supported_open_ssl_cipher:
+                    # Skipped ssl cipher which AVI does not support
+                    skipped_status = \
+                        'Skipped: ssl cipher does not supported by avi: %s' \
+                        % full_bind_ssl_cipher_command
+                    LOG.warning(skipped_status)
+                    # Add skipped status in xlsx/report for add ssl cipher
+                    ns_util.add_status_row(bind_cipher['line_no'],
+                                           bind_ssl_cipher_command, cipher,
+                                           full_bind_ssl_cipher_command,
+                                           STATUS_INDIRECT, skipped_status)
+                    continue
+
+                supported_open_ssl_cipher = \
+                    self.netscaler_ssl_cipher_to_open_ssl_cipher_supported_by_avi.\
+                        get(bind_cipher['cipherName'], None)
+                if supported_open_ssl_cipher:
+                    avi_cipher = {'accepted_ciphers': supported_open_ssl_cipher}
+                    ciphers.append(supported_open_ssl_cipher)
                     LOG.info('Conversion successful: %s' %
                              full_bind_ssl_cipher_command)
                     # Add Successful status in CSV/report for add ssl cipher
@@ -627,10 +650,11 @@ class ProfileConverter(object):
                                            full_bind_ssl_cipher_command,
                                            STATUS_SUCCESSFUL, avi_cipher)
                 else:
+                    # Skipped ssl cipher if cipher is None
                     skipped_status = 'Skipped: Cipher not match in avi: %s' \
                                      % full_bind_ssl_cipher_command
                     LOG.warning(skipped_status)
-                    # Add skipped status in CSV/report for add ssl cipher
+                    # Add skipped status in xlsx/report for add ssl cipher
                     ns_util.add_status_row(bind_cipher['line_no'],
                                            bind_ssl_cipher_command, cipher,
                                            full_bind_ssl_cipher_command,
