@@ -366,9 +366,7 @@ class VSConfigConvV11(VSConfigConv):
                                skipped):
         port_translate = f5_vs.get('translate-port', None)
         if port_translate:
-            vs_type = conv_utils.get_app_profile_type(app_prof, avi_config)
-            l4_type = 'APPLICATION_PROFILE_TYPE_L4'
-            if port_translate == 'disabled' and vs_type == l4_type:
+            if port_translate == 'disabled':
                 conv_utils.update_pool_for_service_port(avi_config['Pool'],
                                                         pool_ref)
             elif port_translate == 'enabled':
@@ -394,9 +392,7 @@ class VSConfigConvV10(VSConfigConv):
                                skipped):
         port_translate = f5_vs.get('translate service', None)
         if port_translate:
-            vs_type = conv_utils.get_app_profile_type(app_prof, avi_config)
-            l4_type = 'APPLICATION_PROFILE_TYPE_L4'
-            if port_translate == 'disabled' and vs_type == l4_type:
+            if port_translate == 'disabled':
                 conv_utils.update_pool_for_service_port(avi_config['Pool'],
                                                         pool_ref)
             elif port_translate == 'enabled':
