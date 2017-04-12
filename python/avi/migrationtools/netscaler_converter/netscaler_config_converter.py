@@ -108,25 +108,31 @@ def convert(ns_config_dict, tenant_name, cloud_name, version, output_dir,
                     # Added code to print merged count.
                 elif profile_merge_check and key == 'SSLProfile':
                     profile_merged_message = \
-                        'Total Objects of %s : %s (%s profile merged)' % \
+                        'Total Objects of %s : %s (%s/%s profile merged)' % \
                         (key, len(avi_config[key]),
-                         abs(profile_converter.ssl_merge_count))
+                         abs(profile_converter.ssl_merge_count),
+                         abs(profile_converter.ssl_merge_count) +
+                         len(avi_config[key]))
                     LOG.info(profile_merged_message)
                     print profile_merged_message
                     continue
                 elif profile_merge_check and key == 'ApplicationProfile':
                     profile_merged_message = \
-                        'Total Objects of %s : %s (%s profile merged)' % \
+                        'Total Objects of %s : %s (%s/%s profile merged)' % \
                         (key, len(avi_config[key]),
-                         abs(profile_converter.application_merge_count))
+                         abs(profile_converter.application_merge_count),
+                         abs(profile_converter.application_merge_count) +
+                         len(avi_config[key]))
                     LOG.info(profile_merged_message)
                     print profile_merged_message
                     continue
                 elif profile_merge_check and key == 'NetworkProfile':
                     profile_merged_message = \
-                        'Total Objects of %s : %s (%s profile merged)' % \
+                        'Total Objects of %s : %s (%s/%s profile merged)' % \
                         (key, len(avi_config[key]),
-                         abs(profile_converter.network_merge_count))
+                         abs(profile_converter.network_merge_count),
+                         abs(profile_converter.network_merge_count) +
+                         len(avi_config[key]))
                     LOG.info(profile_merged_message)
                     print profile_merged_message
                     continue
