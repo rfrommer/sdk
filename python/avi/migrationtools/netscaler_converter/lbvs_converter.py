@@ -13,6 +13,8 @@ from avi.migrationtools.netscaler_converter.ns_constants \
 
 from avi.migrationtools.netscaler_converter.policy_converter \
     import PolicyConverter
+from avi.migrationtools.netscaler_converter.profile_converter \
+    import merge_profile_mapping
 
 LOG = logging.getLogger(__name__)
 redirect_pools = {}
@@ -23,7 +25,8 @@ used_pool_group_ref = []
 class LbvsConverter(object):
 
 
-    def __init__(self, tenant_name, cloud_name, tenant_ref, cloud_ref):
+    def __init__(self, tenant_name, cloud_name, tenant_ref, cloud_ref,
+                 profile_merge_check):
         self.lbvs_skip_attrs = \
             ns_constants.netscalar_command_status['lbvs_skip_attrs']
         self.lbvs_na_attrs = \
@@ -38,6 +41,8 @@ class LbvsConverter(object):
         self.cloud_name = cloud_name
         self.tenant_ref = tenant_ref
         self.cloud_ref = cloud_ref
+        self.profile_merge_check = profile_merge_check
+
     def convert(self, ns_config, avi_config, vs_state):
         """
         This function defines that it convert netscalar lb vs config to vs
@@ -182,6 +187,9 @@ class LbvsConverter(object):
                     avi_config['HTTPPolicySet'].append(policy)
 
                 if app_profile:
+                    if self.profile_merge_check:
+                        app_profile = merge_profile_mapping['app_profile'].get(
+                            app_profile, None)
                     app_profile = \
                         ns_util.get_object_ref(app_profile,
                                                OBJECT_TYPE_APPLICATION_PROFILE,
@@ -325,6 +333,9 @@ class LbvsConverter(object):
                              persistenceType)
                 ntwk_prof = lb_vs.get('tcpProfileName', None)
                 if ntwk_prof:
+                    if self.profile_merge_check:
+                        ntwk_prof = merge_profile_mapping['network_profile'].get(
+                            ntwk_prof, None)
                     if ns_util.object_exist('NetworkProfile', ntwk_prof,
                                             avi_config):
                         LOG.info('Conversion successful: Added network profile '
@@ -428,6 +439,9 @@ class LbvsConverter(object):
                     ssl_vs_mapping = ns_config.get('set ssl vserver', {})
                     mapping = ssl_vs_mapping.get(key, None)
                     ssl_profile_name = re.sub('[:]', '-', key)
+                    if self.profile_merge_check:
+                        ssl_profile_name = merge_profile_mapping['ssl_profile'].get(
+                            ssl_profile_name, None)
                     if mapping and [ssl_profile for ssl_profile in
                                     avi_config["SSLProfile"] if
                                     ssl_profile['name'] == ssl_profile_name]:
