@@ -84,13 +84,10 @@ class ProfileConverter(object):
         self.application_merge_count = 0
         self.network_merge_count = 0
         # ssl cipher yaml
-        self.netscaler_ssl_cipher_to_open_ssl_cipher_supported_by_avi = \
-            ssl_ciphers.get(
-                'netscaler_ssl_cipher_to_open_ssl_cipher_supported_by_avi', {})
-        self.netscaler_ssl_cipher_to_open_ssl_cipher_not_supported_by_avi = \
-            ssl_ciphers.get(
-                'netscaler_ssl_cipher_to_open_ssl_cipher_not_supported_by_avi',
-                {})
+        self.supported_netscaler_to_open_ssl_cipher = \
+            ssl_ciphers.get('supported_netscaler_to_open_ssl_cipher', {})
+        self.non_supported_netscaler_to_open_ssl_cipher = \
+            ssl_ciphers.get('non_supported_netscaler_to_open_ssl_cipher', {})
         self.open_ssl_cipher_to_avi_ssl_cipher = ssl_ciphers.get(
             'open_ssl_cipher_to_avi_ssl_cipher', {})
         # list of keys with passphrase provided in YAML.
@@ -675,7 +672,7 @@ class ProfileConverter(object):
                 get_netscalar_full_command(bind_ssl_cipher_command, bind_cipher)
             if bind_cipher.get('cipherName', None):
                 not_supported_open_ssl_cipher = \
-                    self.netscaler_ssl_cipher_to_open_ssl_cipher_not_supported_by_avi.\
+                    self.non_supported_netscaler_to_open_ssl_cipher.\
                         get(bind_cipher['cipherName'], None)
                 if not_supported_open_ssl_cipher:
                     # Skipped ssl cipher which AVI does not support
@@ -691,7 +688,7 @@ class ProfileConverter(object):
                     continue
 
                 supported_open_ssl_cipher = \
-                    self.netscaler_ssl_cipher_to_open_ssl_cipher_supported_by_avi.\
+                    self.supported_netscaler_to_open_ssl_cipher.\
                         get(bind_cipher['cipherName'], None)
                 if supported_open_ssl_cipher:
                     avi_cipher = {'accepted_ciphers': supported_open_ssl_cipher}
