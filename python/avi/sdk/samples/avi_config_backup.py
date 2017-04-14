@@ -22,7 +22,7 @@ def main(args):
 
 if __name__ == "__main__":
     requests.packages.urllib3.disable_warnings()
-    parser = argparse.ArgumentParser(description="Script to get the full configuration from Avi controller")
+    parser = argparse.ArgumentParser(description="Script to get the full configuration from the Avi Controller")
     parser.add_argument("-u", "--username", required=True,
                         help="Login username")
     parser.add_argument("-p", "--password", required=True,
@@ -30,8 +30,8 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--controller", required=True,
                         help="Controller IP address")
     parser.add_argument("-P", "--passphrase", required=False,
-                        help="Passphrase to encrypt sensitive information in backup")
+                        help="Passphrase to encrypt sensitive information in the backup")
     parser.add_argument("-f", "--filename", required=True,
-                        help="Filename prefix - will be suffixed with a timestamp")
+                        help="The filename prefix supplied will be suffixed by a timestamp")
     args = parser.parse_args()
     main(args)
