@@ -3,27 +3,27 @@
 [![Build Status](https://travis-ci.org/avinetworks/sdk.svg?branch=17.1.4_pytest)](https://travis-ci.org/avinetworks/sdk)
 
 This repository includes API documentation, SDK and sample source to integrate
-into Avi Solution. Here is brief description of the contents
+into the Avi Vantage Platform. Here is brief description of the contents:
 
 - **doc**: Avi API documentation. It includes documentation for the load balancer
-objects, Analytics Metrics, and Log Analytics APIs.
-- **python**: Source for the python SDK. The pip package can be downloaded from
+objects, analytics metrics, and log analytics APIs.
+- **python**: Source for the Python SDK. The pip package can be downloaded from
 [Releases](https://github.com/avinetworks/sdk/releases "Avi SDK Releases").
-Here are list of important SDK directories
-    - **samples**: Python samples are in directory python/avi/sdk/samples.
-        - **autoscale**: Gives examples of creating control scripts for
+Here are list of important SDK directories:
+    - **samples**: Python samples are in directory python/avi/sdk/samples
+        - **autoscale**: Gives examples of creating ControlScripts for
         server autoscale
-        - **heat**: Provides a heat example for pool servers that can be used
-        with server autoscale feature and control scripts
-        - **virtualservice_examples_api**: provides examples of programmatically
-        creating most common VirtuaServices like basic VS, SSL VS, analytics
-        APIs, tenant based APIs etc.
-    - **utils**: Useful utilities for devops automation.
+        - **heat**: A heat example for pool servers that can be used
+        with the server autoscale feature and ControlScripts
+        - **virtualservice_examples_api**: Examples of programmatically
+        creating most common virtual services, such as a basic VS, SSL VS, analytics
+        APIs, tenant-based APIs etc.
+    - **utils**: Useful utilities for devops automation
         - **f5_converter**: It is utility for converting F5 configuration into
-        AVI configuration
-        - **httppolicyset_templates**: Provides easy to use templates for
+        an Avi configuration
+        - **httppolicyset_templates**: Provides easy-to-use templates for
         creating HTTP request and redirect policies for most common use cases
-        - **Mesos**: Provides CRUD apis to create Marathon App with AVI labels
+        - **Mesos**: Provides CRUD APIs to create Marathon App with Avi labels
 
 # Installation
 Pip packages are hosted on GitHub. They can be installed simply as:
@@ -31,13 +31,13 @@ Pip packages are hosted on GitHub. They can be installed simply as:
 ```sh
 $ pip install avisdk
 ```
-### Avi Migration Tools Install - installs F5 and Netscaler to avi conversion tools
+### Avi Migration Tools Install - installs F5 and NetScaler to Avi conversion tools
 ```sh
 $ pip install avimigrationtools
 ```
 
-### Python Virtual Environment based installation
-It is recommended to use virtual env based installation if you are just
+### Python Virtual-Environment-based Installation
+It is recommended to perform a virtual-env-based installation if you are just
 experimenting with the SDK or F5 converter.
 
 ```sh
@@ -76,7 +76,7 @@ for vs in resp.json()['results']:
 resp = api.delete_by_name('virtualservice', 'sample_vs')
 ```
 
-If ApiSession is invoked in the context of a control script, then token can be used for authentication.
+If ApiSession is invoked in the context of a ControlScript, then token can be used for authentication.
 Along with that, information regarding username and tenant information can also be retrieved as follows:
 ```python
 token=os.environ.get('API_TOKEN')
@@ -86,16 +86,16 @@ api = ApiSession.get_session("localhost", user, token=token, tenant=tenant)
 ```
 # SAML Authentication Usage
 ### prerequisite:
-1. SAML configured/enabled controller.
+1. SAML-configured/enabled Controller.
 
-To set up SAML SSO controller, please refer the below link. 
+To set up a SAML SSO Controller, please refer to the below link. 
 (https://avinetworks.com/docs/17.2/single-sign-on-with-saml/)
 
-Currently, SDK support two IDPs for SAML based authentication:
+Currently, the SDK supports two IDPs for SAML-based authentication:
 1) Okta
-2) Onelogin
+2) OneLogin
 
-## SAML based session usage for the OKta IDP
+## SAML-based session usage for the Okta IDP
 
 ```python
 from avi.sdk.saml_avi_api import OktaSAMLApiSession
@@ -119,7 +119,7 @@ for vs in resp.json()['results']:
 resp = api.delete_by_name('virtualservice', 'sample_vs')
 ```
 
-## SAML based session usage for the Onelogin IDP
+## SAML-based session usage for the OneLogin IDP
 
 ```python
 from avi.sdk.saml_avi_api import OneloginSAMLApiSession
@@ -151,22 +151,22 @@ api = ApiSession.get_session("10.10.10.42", "onelogin_username", "onelogin_passw
 api = ApiSession.get_session("10.10.10.42", "onelogin_username", "onelogin_password", idp_class=OktaSAMLApiSession)
 ```
 #### F5 Converter Usage
-See all the F5 converter options
+See all the F5 converter options.
 ```sh
 f5_converter.py -h
 ```
-Convert bigip.conf into Avi configuration. Output is in output directory
+Convert bigip.conf into Avi configuration. Output is in the output directory.
 ```sh
 f5_converter.py -f bigip.conf
 ls output
 ```
 
 #### Netscaler Converter Usage
-See all the Netscaler converter options
+See all the NetScaler converter options.
 ```sh
 netscaler_converter.py -h
 ```
-Convert ns.conf into Avi configuration. Output is in output directory
+Convert ns.conf into Avi configuration. Output is in the output directory.
 ```sh
 netscaler_converter.py -f ns.conf
 ls output
